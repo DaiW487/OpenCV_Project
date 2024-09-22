@@ -7,7 +7,7 @@ using namespace std;
 Mat redInHSV(Mat image1);
 Mat redContour(cv::Mat img);
 Mat redBounding(Mat img);
-Mat Compute(Mat img);
+void ComputeArea(Mat img);
 void Rotate(cv::Mat &srcImage, cv::Mat &dstImage, double angle, cv::Point2f center, double scale);
 
 
@@ -70,8 +70,7 @@ int main()
 
 
     //compute the Area of contour
-	
-
+	ComputeArea(img);
 
 
     //Extract highlighted color area and do graphic processing
@@ -260,7 +259,7 @@ Mat redBounding(Mat img)
 
 //Create a function to calculate the Area of the red area
 
-Mat Compute(Mat img)
+void ComputeArea(Mat img)
 {
     Mat red_image1=redInHSV(img);
 
@@ -275,17 +274,19 @@ Mat Compute(Mat img)
   
     cv::findContours(binary, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE); 
 	
-	double a[100000];
-    for(size_t i=0;i<=contours.size();i++){
-	a[i]=contourArea(contours[i]);
+	if (!contours.empty() && !hierarchy.empty())
+	{
+		std::vector<std::vector<cv::Point> >::const_iterator itc = contours.begin();
+		int i = 1;
+		while (itc != contours.end())
+		{
+			double area = cv::contourArea(*itc);
+			cout << "第" << i << "个轮廓的面积为：" << area << endl;
+			i++;
+			itc++;
+		}
 	}
-    for(int j=0;j<=100000;j++){
-		printf(" ",a[j]);
-	}
-	
-	return img;
 }
-
 
 
 // Create a function to rotate the image
