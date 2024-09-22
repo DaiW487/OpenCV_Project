@@ -19,94 +19,119 @@ int main()
 	Mat img = imread(path);
 	Mat imgGray,imgHSV,imgBlur,imgGaussBlur;
 
+
 	//Convert image to GRAY
+
 	cvtColor(img, imgGray, COLOR_BGR2GRAY);
 	namedWindow("Image Gray",WINDOW_KEEPRATIO);
 	imshow("Image Gray", imgGray);
 
+
     //Convert image to HSV format
+
 	cvtColor(img, imgHSV, COLOR_BGR2HSV);
 	namedWindow("Image HSV",WINDOW_KEEPRATIO);
 	imshow("Image HSV", imgHSV);
 
+
 	//Apply mean filtering
+
     blur(img,imgBlur,Size(5,5));
 	namedWindow("Image Blur",WINDOW_KEEPRATIO);
 	imshow("Image Blur", imgBlur);
 
+
 	//Apply Guass filtering
+
     GaussianBlur(img,imgGaussBlur,Size(5,5),3,3,0);
 	namedWindow("Image GaussBlur",WINDOW_KEEPRATIO);
 	imshow("Image GaussBlur", imgGaussBlur);
     
+
 	//Extract the red area
+
     Mat red_image=redInHSV(img);
 	namedWindow("Red Image",WINDOW_KEEPRATIO);
 	imshow("Red Image", red_image);
 
+
     //Extract the contour of the red area
+
 	Mat red_contour=redContour(img);
 	namedWindow("Red Contour",WINDOW_KEEPRATIO);
 	imshow("Red Contour", red_contour);
 
+
     //find the bounding box of red area
+
 	Mat Red_box=redBounding(img);
     namedWindow("Red Bounding Box",WINDOW_KEEPRATIO);
 	imshow("Red Bounding Box", Red_box);
 
-    //compute the S of contour
+
+    //compute the Area of contour
 	
 
 
 
     //Extract highlighted color area and do graphic processing
-    Mat imgCanny,imgDil,imgErode,imghsv,HLGray,HLGaussBlur,HLBlur;
 
+
+    Mat imgCanny,imgDil,imgErode,imghsv,HLGray,HLGaussBlur;
+    //Convert image to HSV format
     cv::cvtColor(img, imghsv, cv::COLOR_BGR2HSV);
- 
     cv::Scalar lower_light = cv::Scalar(0, 0, 60);
     cv::Scalar upper_light = cv::Scalar(0, 0, 255);
- 
+    //Create a mask
     cv::Mat mask;
     cv::inRange(imghsv, lower_light, upper_light, mask);
- 
+    //show the Highlighted area
     cv::Mat HLimage;
     cv::bitwise_and(img, img, HLimage, mask);
     namedWindow("HLimage",WINDOW_KEEPRATIO);
 	imshow("HLimage", HLimage);
-	//将照片转换为灰度
+	//Convert the image to Gray
 	cvtColor(HLimage, HLGray, COLOR_BGR2GRAY);
-	
-	//高斯模糊
+	//GaussBlur
 	GaussianBlur(HLGray, HLGaussBlur, Size(3, 3), 3, 0);
 	//
 	Mat HLbinary;
 	cv::threshold(HLGray,HLbinary,180,255,THRESH_BINARY);
-	//Canny边缘检测器  一般在使用Canny边缘检测器之前会做一些模糊处理
+	//Canny edge detectors
 	Canny(HLbinary, imgCanny, 25, 75);
-	//创建一个可以使用膨胀的内核
+	//Create a kernel that can be used to dilate
 	Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
-	//图像膨胀
+	//Dilate the image
 	dilate(HLbinary, imgDil, kernel);
-	//图像侵蚀
+	//Erode the image
 	erode(imgDil, imgErode, kernel);
-	//
+
+
+
+	//Flood water treatment
+
 	Rect ccomp;
-	Mat imgBlood=imread(path);
-	cv::floodFill(imgBlood,Point(100,500),Scalar(200,100,100),&ccomp,Scalar(20,20,20),Scalar(20,20,20));
-    namedWindow("Image Blood",WINDOW_KEEPRATIO);
-	imshow("Image Blood", imgBlood);
-    //结果呈现
+	Mat imgFlood=imread(path);
+	cv::floodFill(imgFlood,Point(100,500),Scalar(200,100,100),&ccomp,Scalar(20,20,20),Scalar(20,20,20));
+    namedWindow("Image Flood",WINDOW_KEEPRATIO);
+	imshow("Image Flood", imgFlood);
+    //Show the drawing
 	namedWindow("Image Erode",WINDOW_KEEPRATIO);
 	imshow("Image Erode", imgErode);
 
+
+
     //draw a rectangle
+
 	Mat recimg=Mat::zeros(Size(500,500),CV_8UC3);
 	rectangle(recimg,Point(100,200),Point(200,400),Scalar(255,0,0),20);
     namedWindow("Rectangle",WINDOW_KEEPRATIO);
 	imshow("Rectangle", recimg);
 
+
+
 	//draw a circle
+
 	Mat round=Mat::zeros(Size(500,500),CV_8UC3);
 	circle(round,Point(100,200),70,Scalar(200,155,204),10);
     namedWindow("Circle",WINDOW_KEEPRATIO);
@@ -115,6 +140,7 @@ int main()
 
 
 	//rotate the image
+
 	Mat rotateimg;
 	int row=img.rows;
 	int col=img.cols;
@@ -125,15 +151,23 @@ int main()
     namedWindow("Rotate",WINDOW_KEEPRATIO);
 	imshow("Rotate",rotateimg);
 
+
+
     //write words
+
 	putText(img,"Hello OpenCV",Point(col/3,row/2),FONT_HERSHEY_SIMPLEX,5,Scalar(255,255,255),20);
 	namedWindow("Word",WINDOW_KEEPRATIO);
 	imshow("Word",img);
 
+
+
     //cut the image
+
 	Mat cutimg=img(cv::Rect(0,0,col/2,row/2));
     namedWindow("Cut",WINDOW_KEEPRATIO);
 	imshow("Cut",cutimg);
+
+
 
 	waitKey(0);
 	return 0;
@@ -164,49 +198,67 @@ Mat redInHSV(Mat image1)
 
 
 
+//Create a function to find the contour of red area
+
 Mat redContour(cv::Mat img)
 {
     Mat red_image1=redInHSV(img);
-
+   
+    //convert to Gray
 	Mat red_gray;
 	cvtColor(red_image1, red_gray, COLOR_BGR2GRAY);
 
+    //binarization 
 	Mat binary;
 	cv::threshold(red_gray,binary,1,255,THRESH_BINARY);
-  
+    
+	//find the contours
     std::vector<std::vector<cv::Point>> contours;  
     std::vector<cv::Vec4i> hierarchy;  
-  
     cv::findContours(binary, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);  
-  
+    
+	//draw the contours
     Mat red_contour=Mat::zeros(red_gray.size(),CV_8UC3);
     cv::drawContours(red_contour,contours,-1,Scalar(255,255,255),4,LINE_8,hierarchy);
+
     return red_contour;
 }
+
+
+
+//Create a function to add bounding box to red contours
 
 Mat redBounding(Mat img)
 {
 	Mat red_image1=redInHSV(img);
 
+    //convert to Gray
 	Mat red_gray;
 	cvtColor(red_image1, red_gray, COLOR_BGR2GRAY);
-
+    
+	//binarization 
 	Mat binary;
 	cv::threshold(red_gray,binary,1,255,THRESH_BINARY);
-  
+    
+	//find the contours
     std::vector<std::vector<cv::Point>> contours;  
     std::vector<cv::Vec4i> hierarchy;  
-  
     cv::findContours(binary, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);  
 
+    //draw the red bounding box
     cv::Mat drawing=cv::Mat::zeros(red_gray.size(),CV_8UC3);
 
     for(size_t i=0;i<contours.size();i++){
 		cv::Rect rect=cv::boundingRect(contours[i]);
 		cv::rectangle(drawing,rect,cv::Scalar(0,255,0),2,8,0);
 	}
+
 	return drawing;
 }
+
+
+
+//Create a function to calculate the Area of the red area
 
 Mat Compute(Mat img)
 {
@@ -230,13 +282,20 @@ Mat Compute(Mat img)
     for(int j=0;j<=100000;j++){
 		printf(" ",a[j]);
 	}
+	
 	return img;
 }
 
 
-// rotate the image
+
+// Create a function to rotate the image
+
 void Rotate( cv::Mat &srcImage, cv::Mat &dstImage, double angle, cv::Point2f center, double scale)
 {
-	cv::Mat M = cv::getRotationMatrix2D(center, angle, scale);//计算旋转的仿射变换矩阵 
-	cv::warpAffine(srcImage, dstImage, M, cv::Size(srcImage.cols, srcImage.rows));//仿射变换  
+
+	//Calculate the matrix of affine transformation
+	cv::Mat M = cv::getRotationMatrix2D(center, angle, scale);
+
+	//Do affine transformation
+	cv::warpAffine(srcImage, dstImage, M, cv::Size(srcImage.cols, srcImage.rows));
 }
