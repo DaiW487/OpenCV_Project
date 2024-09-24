@@ -1,7 +1,26 @@
-Claim : This README.md document is written in English
+***Claim : This README.md document is written in English***
 
-I have successfully implemented various operations on image processing with OpenCV.
-The following screenshots are listed to show my results , please check.
+#I have successfully implemented various operations on image processing with OpenCV.
+
+##I'll elaborate on how I built the project:
+  ###1.The Use of Basic Functions
+     use the basic opencv functions such as using cvtColor to shift the color space to Gray or HSV format,using Blur to filter the image and so on.
+  ###2.Definite Functions to Extract the Red Area , The Contours and The Bounding Box
+     For example:Extract the red area
+     Step1:shift the image to Gray(using function cvtcolor)
+     Step2:Binarization(using function threshold)
+     Step3:fing the contours(using function findContours)
+     Step4:draw the found contours(using function drawContours)
+  ###3.Calculate the Area of Red area
+     Just take use of function contourArea(after finding the contours)
+  ###4.Basic operations to write some words,draw graphs and rotate the image
+     Take use of various functions putTxet,Rotate,rectangle and circle
+
+##When I confront bugs,I tend for GPT for help.I use GPT to solve the problem including the empty image problem.
+
+
+
+##The following screenshots are listed to show my results , please check.
 
 ***Image color space conversion(Gray ang HSV)
 ![Gray and HSV](https://github.com/user-attachments/assets/c784a724-2784-4349-a77f-e97a91aac73d)
