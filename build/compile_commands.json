@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/daiwei/OpenCV_Project/build",
-  "command": "/usr/bin/g++  -isystem /usr/local/include/opencv4 -g -o CMakeFiles/OpenCV_Project.dir/src/main.cpp.o -c /home/daiwei/OpenCV_Project/src/main.cpp",
-  "file": "/home/daiwei/OpenCV_Project/src/main.cpp"
-}
-]
